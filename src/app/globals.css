@@ -1,0 +1,376 @@
+// Global Styles for Quran App
+// Mimicking Physical Mushaf feel
+
+@import 'tailwindcss/base';
+@import 'tailwindcss/components';
+@import 'tailwindcss/utilities';
+
+// Import Arabic fonts
+@import url('https://fonts.googleapis.com/css2?family=Amiri:ital,wght@0,400;0,700;1,400;1,700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Scheherazade+New:wght@400;700&display=swap');
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+
+@layer base {
+  html {
+    scroll-behavior: smooth;
+  }
+
+  body {
+    @apply font-sans text-ink-800 bg-cream-50;
+    background-image: 
+      radial-gradient(circle at 25% 25%, rgba(255, 255, 255, 0.1) 0%, transparent 50%),
+      radial-gradient(circle at 75% 75%, rgba(255, 255, 255, 0.1) 0%, transparent 50%);
+  }
+
+  /* Arabic text styling */
+  .arabic-text {
+    @apply text-arabic font-arabic;
+    font-size: 1.75rem;
+    line-height: 2.5;
+    letter-spacing: 0.025em;
+    word-spacing: 0.1em;
+    text-rendering: optimizeLegibility;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  .arabic-text-large {
+    font-size: 2.25rem;
+    line-height: 2.75;
+  }
+
+  .arabic-text-small {
+    font-size: 1.5rem;
+    line-height: 2.25;
+  }
+
+  /* Mushaf page styling */
+  .mushaf-page {
+    @apply bg-cream-100 rounded-lg shadow-mushaf-lg;
+    background-image: 
+      radial-gradient(circle at 30% 20%, rgba(139, 115, 85, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 70% 80%, rgba(139, 115, 85, 0.02) 0%, transparent 50%);
+    border: 8px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+  }
+
+  .mushaf-page::before {
+    content: '';
+    position: absolute;
+    top: -8px;
+    left: -8px;
+    right: -8px;
+    bottom: -8px;
+    background: linear-gradient(45deg, 
+      #065f46 0%, 
+      #059669 25%, 
+      #10b981 50%, 
+      #059669 75%, 
+      #065f46 100%);
+    border-radius: 12px;
+    z-index: -1;
+  }
+
+  .mushaf-page::after {
+    content: '';
+    position: absolute;
+    top: 12px;
+    left: 12px;
+    right: 12px;
+    bottom: 12px;
+    background: linear-gradient(135deg, 
+      rgba(16, 185, 129, 0.1) 0%, 
+      rgba(5, 150, 105, 0.1) 100%);
+    border-radius: 6px;
+    pointer-events: none;
+  }
+
+  /* Verse number styling */
+  .verse-number {
+    @apply inline-flex items-center justify-center w-8 h-8 rounded-full text-sm font-bold text-white;
+    background: linear-gradient(135deg, #065f46, #10b981);
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+    font-family: 'Inter', sans-serif;
+  }
+
+  .verse-number-small {
+    @apply w-6 h-6 text-xs;
+  }
+
+  .verse-number-large {
+    @apply w-10 h-10 text-base;
+  }
+
+  /* Stop signs (Waqf) styling */
+  .waqf-sign {
+    @apply absolute text-ink-600 text-xs font-medium;
+    font-family: 'Amiri', serif;
+    transform: translateY(-0.5rem);
+  }
+
+  /* Interactive elements */
+  .interactive-word {
+    @apply cursor-pointer transition-all duration-200 hover:bg-yellow-200 hover:bg-opacity-50 rounded px-1;
+    position: relative;
+  }
+
+  .interactive-word:hover::after {
+    content: attr(data-tooltip);
+    @apply absolute bottom-full left-1/2 transform -translate-x-1/2 bg-ink-800 text-white text-xs px-2 py-1 rounded shadow-lg z-50 whitespace-nowrap;
+    margin-bottom: 4px;
+  }
+
+  .interactive-word.active {
+    @apply bg-yellow-300 bg-opacity-75 shadow-md;
+    animation: word-highlight 2s ease-in-out;
+  }
+
+  /* Page transition effects */
+  .page-container {
+    perspective: 1000px;
+    perspective-origin: 50% 50%;
+  }
+
+  .page-flip {
+    transform-style: preserve-3d;
+    transition: transform 0.6s;
+  }
+
+  .page-flip.flipped {
+    transform: rotateY(-180deg);
+  }
+
+  .page-front, .page-back {
+    backface-visibility: hidden;
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+  }
+
+  .page-back {
+    transform: rotateY(180deg);
+  }
+
+  /* List view styling */
+  .ayah-list-item {
+    @apply p-4 border-b border-cream-200 hover:bg-cream-50 transition-colors duration-200;
+  }
+
+  .ayah-list-item:hover {
+    @apply bg-cream-100;
+  }
+
+  /* Tajweed color coding */
+  .tajweed-normal { @apply text-ink-900; }
+  .tajweed-ikhfah { @apply text-blue-600; }
+  .tajweed-idgham { @apply text-orange-600; }
+  .tajweed-iqlab { @apply text-purple-600; }
+  .tajweed-ghunna { @apply text-pink-600; }
+  .tajweed-madd { @apply text-green-600; }
+  .tajweed-qalqalah { @apply text-red-600; }
+  .tajweed-tanween { @apply text-gray-600; }
+  .tajweed-sakin { @apply text-gray-500; }
+  .tajweed-shadda { @apply text-gray-700; }
+  .tajweed-waqf { @apply text-yellow-600; }
+
+  /* Custom scrollbar */
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-track {
+    @apply bg-cream-100 rounded-lg;
+  }
+
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    @apply bg-cream-400 rounded-lg hover:bg-cream-500;
+  }
+
+  /* Loading animations */
+  .loading-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+  }
+
+  .loading-spin {
+    animation: spin 1s linear infinite;
+  }
+
+  /* Focus styles for accessibility */
+  .focus-visible {
+    @apply outline-none ring-2 ring-primary-500 ring-offset-2 ring-offset-cream-50;
+  }
+
+  /* Print styles for Mushaf layout */
+  @media print {
+    .mushaf-page {
+      @apply shadow-none border-2 border-ink-300;
+      break-inside: avoid;
+      page-break-inside: avoid;
+    }
+    
+    .no-print {
+      display: none !important;
+    }
+  }
+
+  /* Dark mode adjustments */
+  .dark {
+    @apply bg-ink-900 text-cream-100;
+  }
+
+  .dark .mushaf-page {
+    @apply bg-ink-800;
+    background-image: 
+      radial-gradient(circle at 30% 20%, rgba(255, 255, 255, 0.02) 0%, transparent 50%),
+      radial-gradient(circle at 70% 80%, rgba(255, 255, 255, 0.02) 0%, transparent 50%);
+  }
+
+  .dark .verse-number {
+    @apply bg-gradient-to-br from-emerald-600 to-emerald-800;
+  }
+
+  .dark .arabic-text {
+    @apply text-cream-100;
+  }
+}
+
+@layer components {
+  /* Button components */
+  .btn-primary {
+    @apply bg-primary-600 hover:bg-primary-700 text-white font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2;
+  }
+
+  .btn-secondary {
+    @apply bg-cream-200 hover:bg-cream-300 text-ink-800 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cream-400 focus:ring-offset-2;
+  }
+
+  .btn-ghost {
+    @apply hover:bg-cream-100 text-ink-700 font-medium py-2 px-4 rounded-lg transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-cream-300 focus:ring-offset-2;
+  }
+
+  /* Card components */
+  .card {
+    @apply bg-white rounded-lg shadow-md border border-cream-200 p-6;
+  }
+
+  .card-mushaf {
+    @apply bg-cream-50 rounded-lg shadow-mushaf border-2 border-emerald-200 p-6;
+  }
+
+  /* Input components */
+  .input-field {
+    @apply w-full px-3 py-2 border border-cream-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent transition-colors duration-200;
+  }
+
+  .input-arabic {
+    @apply input-field text-right font-arabic text-arabic;
+  }
+
+  /* Navigation components */
+  .nav-item {
+    @apply flex items-center px-4 py-2 text-ink-700 hover:bg-cream-100 hover:text-ink-900 rounded-lg transition-colors duration-200;
+  }
+
+  .nav-item.active {
+    @apply bg-primary-100 text-primary-900 border-r-2 border-primary-500;
+  }
+
+  /* Modal components */
+  .modal-overlay {
+    @apply fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center p-4;
+  }
+
+  .modal-content {
+    @apply bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-96 overflow-y-auto;
+  }
+
+  /* Tooltip components */
+  .tooltip {
+    @apply absolute z-50 px-2 py-1 text-xs text-white bg-ink-800 rounded shadow-lg pointer-events-none;
+    transform: translateX(-50%) translateY(-100%);
+  }
+
+  /* Loading components */
+  .loading-skeleton {
+    @apply animate-pulse bg-cream-200 rounded;
+  }
+
+  .loading-spinner {
+    @apply animate-spin h-6 w-6 border-2 border-primary-200 border-t-primary-600 rounded-full;
+  }
+}
+
+@layer utilities {
+  /* Text utilities */
+  .text-balance {
+    text-wrap: balance;
+  }
+
+  .text-pretty {
+    text-wrap: pretty;
+  }
+
+  /* Layout utilities */
+  .safe-area-inset {
+    padding-left: env(safe-area-inset-left);
+    padding-right: env(safe-area-inset-right);
+  }
+
+  /* Animation utilities */
+  .animate-fade-in-up {
+    animation: fadeInUp 0.6s ease-out;
+  }
+
+  @keyframes fadeInUp {
+    from {
+      opacity: 0;
+      transform: translate3d(0, 40px, 0);
+    }
+    to {
+      opacity: 1;
+      transform: translate3d(0, 0, 0);
+    }
+  }
+
+  /* Accessibility utilities */
+  .sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border-width: 0;
+  }
+
+  /* High contrast mode */
+  @media (prefers-contrast: high) {
+    .mushaf-page {
+      @apply border-4 border-ink-900;
+    }
+    
+    .verse-number {
+      @apply bg-ink-900 text-white border-2 border-white;
+    }
+  }
+
+  /* Reduced motion */
+  @media (prefers-reduced-motion: reduce) {
+    .animate-fade-in,
+    .animate-slide-in,
+    .animate-pulse-slow,
+    .animate-page-turn,
+    .animate-word-highlight {
+      animation: none;
+    }
+    
+    .interactive-word {
+      transition: none;
+    }
+  }
+}
