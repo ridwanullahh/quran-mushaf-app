@@ -10,7 +10,8 @@
     "lint": "next lint",
     "type-check": "tsc --noEmit",
     "db:init": "tsx scripts/init-database.ts",
-    "db:seed": "tsx scripts/seed-database.ts",
+    "db:seed": "tsx scripts/seed-database.ts --with-samples",
+    "db:seed-basic": "tsx scripts/seed-database.ts",
     "db:export": "tsx scripts/export-data.ts",
     "test": "jest",
     "test:watch": "jest --watch",
@@ -57,7 +58,15 @@
     "react-hook-form": "^7.47.0",
     "@hookform/resolvers": "^3.3.0",
     "zustand": "^4.4.0",
-    "immer": "^10.0.0"
+    "immer": "^10.0.0",
+    "@radix-ui/react-dialog": "^1.0.0",
+    "@radix-ui/react-tabs": "^1.0.0",
+    "@radix-ui/react-scroll-area": "^1.0.0",
+    "@radix-ui/react-separator": "^1.0.0",
+    "@radix-ui/react-select": "^2.0.0",
+    "@radix-ui/react-label": "^2.0.0",
+    "@radix-ui/react-textarea": "^1.0.0",
+    "@radix-ui/react-slot": "^1.0.0"
   },
   "devDependencies": {
     "eslint": "^8.0.0",
