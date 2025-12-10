@@ -9,7 +9,7 @@ interface WordProps {
   tajweedClass?: string
   isHovered?: boolean
   isSelected?: boolean
-  onClick?: (event: React.MouseEvent) => void
+  onClick?: (event: React.MouseEvent, word: WordAnalysis) => void
   onHover?: (word: WordAnalysis | null) => void
   className?: string
 }
@@ -44,8 +44,35 @@ export function Word({
   const handleClick = useCallback((event: React.MouseEvent) => {
     event.preventDefault()
     event.stopPropagation()
-    onClick?.(event)
-  }, [onClick])
+    
+    // Create word data for analysis
+    const wordData: WordAnalysis = {
+      id: word.id || `${word.surahId}-${word.ayahNumber}-${word.wordNumber}`,
+      surahId: word.surahId,
+      ayahNumber: word.ayahNumber,
+      wordNumber: word.wordNumber,
+      arabicWord: word.arabicWord,
+      transliteration: word.transliteration,
+      tajweedClass: word.tajweedClass || 'normal',
+      morphology: word.morphology || {
+        root: '',
+        lemma: '',
+        partOfSpeech: '',
+        tense: '',
+        gender: '',
+        number: '',
+        person: '',
+        confidence: 0
+      },
+      meaning: word.meaning || {},
+      tafseerNotes: word.tafseerNotes || {},
+      relatedWords: word.relatedWords || [],
+      position: word.position || { x: 0, y: 0 },
+      audioUrl: word.audioUrl || ''
+    }
+    
+    onClick?.(event, wordData)
+  }, [word, onClick])
 
   return (
     <motion.span

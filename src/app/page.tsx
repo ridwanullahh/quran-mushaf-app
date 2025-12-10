@@ -1,4 +1,6 @@
-import { Suspense } from 'react'
+'use client'
+
+import { Suspense, useState, useCallback } from 'react'
 import { Metadata } from 'next'
 import { MushafViewer } from '@/components/mushaf/mushaf-viewer'
 import { NavigationPanel } from '@/components/layout/navigation-panel'
@@ -6,6 +8,13 @@ import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
+import { WordAnalysisPanel } from '@/components/mushaf/word-analysis-panel'
+import { SearchInterface } from '@/components/search/search-interface'
+import { Button } from '@/components/ui/button'
+import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
+import { AnimatePresence } from 'framer-motion'
+import { WordAnalysis } from '@/types'
+import { useQuranData } from '@/hooks/use-quran-data'
 
 export const metadata: Metadata = {
   title: 'Quran Mushaf - Read the Holy Quran',
@@ -17,6 +26,22 @@ export const metadata: Metadata = {
 }
 
 export default function HomePage() {
+  const [showSearch, setShowSearch] = useState(false)
+  const [selectedWord, setSelectedWord] = useState<WordAnalysis | null>(null)
+  const [showWordAnalysis, setShowWordAnalysis] = useState(false)
+  
+  const { getWordById } = useQuranData()
+
+  const handleWordClick = useCallback(async (wordData: WordAnalysis) => {
+    setSelectedWord(wordData)
+    setShowWordAnalysis(true)
+  }, [])
+
+  const handleCloseWordAnalysis = useCallback(() => {
+    setShowWordAnalysis(false)
+    setSelectedWord(null)
+  }, [])
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-cream-50 via-cream-100 to-cream-200">
       {/* Header */}
@@ -40,7 +65,11 @@ export default function HomePage() {
                   <LoadingSpinner size="lg" />
                 </div>
               }>
-                <MushafViewer />
+                <MushafViewer 
+                  onWordClick={handleWordClick}
+                  onSearchToggle={() => setShowSearch(!showSearch)}
+                  showSearch={showSearch}
+                />
               </Suspense>
             </ErrorBoundary>
           </div>
@@ -90,19 +119,34 @@ export default function HomePage() {
 
             {/* Search */}
             <div className="mb-6">
-              <h3 className="font-medium text-ink-800 mb-3">Search</h3>
-              <div className="relative">
-                <input
-                  type="text"
-                  placeholder="Search in Quran..."
-                  className="w-full p-3 pl-10 border border-cream-300 rounded-lg focus:ring-2 focus:ring-primary-500 focus:border-transparent"
-                />
-                <div className="absolute inset-y-0 left-0 pl-3 flex items-center pointer-events-none">
-                  <svg className="w-5 h-5 text-ink-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-                  </svg>
-                </div>
+              <div className="flex items-center justify-between mb-3">
+                <h3 className="font-medium text-ink-800">Search</h3>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => setShowSearch(!showSearch)}
+                  className="flex items-center space-x-1"
+                >
+                  <MagnifyingGlassIcon className="w-4 h-4" />
+                  <span className="hidden sm:inline">
+                    {showSearch ? 'Hide' : 'Show'}
+                  </span>
+                </Button>
               </div>
+              
+              <AnimatePresence>
+                {showSearch && (
+                  <div className="mb-4">
+                    <SearchInterface 
+                      onSearchResults={(results) => {
+                        console.log('Search results:', results)
+                        // Handle search results - could navigate to results or update state
+                      }}
+                      onClose={() => setShowSearch(false)}
+                    />
+                  </div>
+                )}
+              </AnimatePresence>
             </div>
 
             {/* Bookmarks */}
@@ -148,6 +192,16 @@ export default function HomePage() {
 
       {/* Footer */}
       <Footer />
+      
+      {/* Word Analysis Panel */}
+      <AnimatePresence>
+        {showWordAnalysis && selectedWord && (
+          <WordAnalysisPanel
+            word={selectedWord}
+            onClose={handleCloseWordAnalysis}
+          />
+        )}
+      </AnimatePresence>
     </div>
   )
 }

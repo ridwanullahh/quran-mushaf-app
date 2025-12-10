@@ -16,10 +16,22 @@ import {
   ListBulletIcon, 
   ChevronLeftIcon, 
   ChevronRightIcon,
-  AdjustmentsHorizontalIcon
+  AdjustmentsHorizontalIcon,
+  MagnifyingGlassIcon
 } from '@heroicons/react/24/outline'
+import { WordAnalysis } from '@/types'
 
-export function MushafViewer() {
+interface MushafViewerProps {
+  onWordClick?: (word: WordAnalysis) => void
+  onSearchToggle?: () => void
+  showSearch?: boolean
+}
+
+export function MushafViewer({ 
+  onWordClick, 
+  onSearchToggle, 
+  showSearch = false 
+}: MushafViewerProps) {
   const [viewMode, setViewMode] = useState<'mushaf' | 'list'>('mushaf')
   const [currentPage, setCurrentPage] = useState(1)
   const [showSettings, setShowSettings] = useState(false)
@@ -172,6 +184,18 @@ export function MushafViewer() {
             <span className="hidden sm:inline">List</span>
           </Button>
 
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={onSearchToggle}
+            className={`flex items-center space-x-2 ${
+              showSearch ? 'bg-primary-100 border-primary-300' : ''
+            }`}
+          >
+            <MagnifyingGlassIcon className="w-4 h-4" />
+            <span className="hidden sm:inline">Search</span>
+          </Button>
+
           {/* Settings Toggle */}
           <Button
             variant="outline"
@@ -205,8 +229,8 @@ export function MushafViewer() {
                   setCurrentAyah(ayah.ayahNumber)
                 }}
                 onWordClick={(word) => {
-                  // Handle word click for analysis
-                  console.log('Word clicked:', word)
+                  // Pass word click to parent component
+                  onWordClick?.(word)
                 }}
               />
             </motion.div>
@@ -225,7 +249,8 @@ export function MushafViewer() {
                   setCurrentAyah(ayah.ayahNumber)
                 }}
                 onWordClick={(word) => {
-                  console.log('Word clicked:', word)
+                  // Pass word click to parent component
+                  onWordClick?.(word)
                 }}
               />
             </motion.div>

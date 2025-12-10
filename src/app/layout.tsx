@@ -6,6 +6,7 @@ import { I18nProvider } from '@/components/providers/i18n-provider'
 import { QueryProvider } from '@/components/providers/query-provider'
 import { ThemeProvider } from '@/components/providers/theme-provider'
 import { AuthProvider } from '@/components/providers/auth-provider'
+import { QuranDataProvider } from '@/contexts/quran-data-context'
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -123,7 +124,8 @@ export default function RootLayout({
           <QueryProvider>
             <I18nProvider>
               <AuthProvider>
-                <div className="relative flex min-h-screen flex-col">
+                <QuranDataProvider>
+                  <div className="relative flex min-h-screen flex-col">
                   <div id="skip-to-content" className="sr-only">
                     <a
                       href="#main-content"
@@ -138,7 +140,8 @@ export default function RootLayout({
                   </main>
 
                   <div id="portal-root" />
-                </div>
+                  </div>
+                </QuranDataProvider>
                 
                 <Toaster
                   position="top-right"
