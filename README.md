@@ -1,4 +1,4 @@
-# Quran Mushaf - Feature-Rich Digital Quran Application
+# Quran Mushaf - Feature-Rich Digital Quran Application 🚀
 
 <div align="center">
 
