@@ -1,7 +1,6 @@
 'use client'
 
-import { QueryClient, QueryClientProvider } from 'react-query'
-import { ReactQueryDevtools } from 'react-query/devtools'
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query'
 import { useState } from 'react'
 
 export function QueryProvider({ children }: { children: React.ReactNode }) {
@@ -11,7 +10,7 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
         defaultOptions: {
           queries: {
             staleTime: 1000 * 60 * 5, // 5 minutes
-            cacheTime: 1000 * 60 * 30, // 30 minutes
+            gcTime: 1000 * 60 * 30, // 30 minutes
             retry: (failureCount, error) => {
               // Don't retry on 404 errors
               if (error && typeof error === 'object' && 'status' in error && error.status === 404) {
@@ -35,9 +34,6 @@ export function QueryProvider({ children }: { children: React.ReactNode }) {
   return (
     <QueryClientProvider client={queryClient}>
       {children}
-      {process.env.NODE_ENV === 'development' && (
-        <ReactQueryDevtools initialIsOpen={false} />
-      )}
     </QueryClientProvider>
   )
 }

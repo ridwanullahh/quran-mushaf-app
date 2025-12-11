@@ -1,5 +1,5 @@
 // Custom hook for Quran data fetching
-import { useQuery, useMutation, useQueryClient } from 'react-query'
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { useState, useEffect } from 'react'
 import { useQuranDataContext } from '@/contexts/quran-data-context'
 import { Ayah, Surah, WordAnalysis } from '@/types'
@@ -15,6 +15,42 @@ interface UseQuranDataOptions {
 }
 
 export function useQuranData(options?: UseQuranDataOptions) {
+  // Check if we're in the browser and context is available
+  let context: any = null
+  let queryClient: any = null
+  
+  if (typeof window !== 'undefined') {
+    try {
+      context = useQuranDataContext()
+      queryClient = useQueryClient()
+    } catch (error) {
+      // Context not available during SSR, return fallback
+      context = null
+    }
+  }
+  
+  // Handle case where context is not available (during SSR)
+  if (!context) {
+    return {
+      data: [],
+      surahs: [],
+      surahsLoading: false,
+      surahsError: null,
+      ayahs: [],
+      loading: false,
+      error: null,
+      isInitialized: false,
+      isLoading: false,
+      error: null,
+      hasSampleData: false,
+      getAyahsByPage: async () => [],
+      getAyahsBySurah: async () => [],
+      getWordById: async () => null,
+      refetch: () => Promise.resolve(),
+      refetchAll: () => Promise.resolve()
+    }
+  }
+
   const {
     getSurahs,
     getAyahsByPage,
@@ -24,9 +60,7 @@ export function useQuranData(options?: UseQuranDataOptions) {
     isLoading,
     error,
     hasSampleData
-  } = useQuranDataContext()
-
-  const queryClient = useQueryClient()
+  } = context
 
   // Surahs query
   const surahsQuery = useQuery(

@@ -1,29 +1,19 @@
 'use client'
 
 import { Suspense, useState, useCallback } from 'react'
-import { Metadata } from 'next'
 import { MushafViewer } from '@/components/mushaf/mushaf-viewer'
 import { NavigationPanel } from '@/components/layout/navigation-panel'
 import { Header } from '@/components/layout/header'
 import { Footer } from '@/components/layout/footer'
 import { LoadingSpinner } from '@/components/ui/loading-spinner'
 import { ErrorBoundary } from '@/components/ui/error-boundary'
-import { WordAnalysisPanel } from '@/components/mushaf/word-analysis-panel'
-import { SearchInterface } from '@/components/search/search-interface'
+import WordAnalysisPanel from '@/components/mushaf/word-analysis-panel'
+import SearchInterface from '@/components/search/search-interface'
 import { Button } from '@/components/ui/button'
 import { MagnifyingGlassIcon, XMarkIcon } from '@heroicons/react/24/outline'
 import { AnimatePresence } from 'framer-motion'
 import { WordAnalysis } from '@/types'
 import { useQuranData } from '@/hooks/use-quran-data'
-
-export const metadata: Metadata = {
-  title: 'Quran Mushaf - Read the Holy Quran',
-  description: 'Read the Holy Quran with authentic Mushaf layout, word-by-word analysis, translations, and tafseers',
-  openGraph: {
-    title: 'Quran Mushaf - Read the Holy Quran',
-    description: 'Read the Holy Quran with authentic Mushaf layout, word-by-word analysis, translations, and tafseers',
-  },
-}
 
 export default function HomePage() {
   const [showSearch, setShowSearch] = useState(false)

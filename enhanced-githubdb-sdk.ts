@@ -1,7 +1,6 @@
 // Enhanced GitHub DB SDK with Schema Evolution and Improved Features
 // Version: 2.0.0 - Production Ready
 
-import nodemailer from 'nodemailer';
 import crypto from 'crypto';
 
 interface CloudinaryConfig {
@@ -9,13 +8,6 @@ interface CloudinaryConfig {
   cloudName?: string;
   apiKey?: string;
   apiSecret?: string;
-}
-
-interface GmailConfig {
-  clientId: string;
-  clientSecret: string;
-  refreshToken: string;
-  user: string;
 }
 
 interface PaystackConfig {
@@ -72,7 +64,6 @@ interface UniversalSDKConfig {
   basePath?: string;
   mediaPath?: string;
   cloudinary?: CloudinaryConfig;
-  gmail?: GmailConfig;
   templates?: Record<string, string>;
   schemas?: Record<string, SchemaDefinition>;
   auth?: AuthConfig;
@@ -165,8 +156,6 @@ class EnhancedUniversalSDK {
   private basePath: string;
   private mediaPath: string;
   private cloudinary: CloudinaryConfig;
-  private gmail: GmailConfig;
-  private mailer: nodemailer.Transporter | null = null;
   private paymentGateways: PaymentGatewayConfig;
   private templates: Record<string, string>;
   private schemas: Record<string, SchemaDefinition>;
@@ -191,7 +180,6 @@ class EnhancedUniversalSDK {
     this.basePath = config.basePath || "db";
     this.mediaPath = config.mediaPath || "media";
     this.cloudinary = config.cloudinary || {};
-    this.gmail = config.gmail!;
     this.paymentGateways = config.paymentGateways || {};
     this.templates = config.templates || {};
 
@@ -401,11 +389,6 @@ class EnhancedUniversalSDK {
     if (this.initialized) return this;
     
     try {
-      // Initialize mailer
-      if (this.gmail) {
-        await this.initializeMailer();
-      }
-      
       // Run schema evolution
       await this.runSchemaEvolution();
       
@@ -413,29 +396,6 @@ class EnhancedUniversalSDK {
       return this;
     } catch (error) {
       console.error('SDK initialization failed:', error);
-      throw error;
-    }
-  }
-
-  private async initializeMailer(): Promise<void> {
-    try {
-      // Create OAuth2 transporter for Gmail
-      this.mailer = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          type: 'OAuth2',
-          user: this.gmail.user,
-          clientId: this.gmail.clientId,
-          clientSecret: this.gmail.clientSecret,
-          refreshToken: this.gmail.refreshToken
-        }
-      });
-
-      // Test the connection
-      await this.mailer.verify();
-      console.log('Gmail mailer initialized successfully');
-    } catch (error) {
-      console.error('Failed to initialize Gmail mailer:', error);
       throw error;
     }
   }
@@ -600,7 +560,7 @@ class EnhancedUniversalSDK {
     const write = this.writeQueue[0];
 
     try {
-      const { collection, data, resolve, retries } = write;
+      const { collection, data, resolve } = write;
 
       // Get current file SHA for optimistic locking
       let currentSha: string | undefined;
@@ -624,7 +584,7 @@ class EnhancedUniversalSDK {
 
       resolve(data);
     } catch (error: any) {
-      if (error.message.includes("409") && retries < 5) { // Conflict
+      if (error.message.includes("409") && write.retries < 5) { // Conflict
         write.retries++;
         // Don't remove from queue, will retry
         console.log(`Retry ${write.retries}/5 for ${write.collection}`);
@@ -787,45 +747,6 @@ class EnhancedUniversalSDK {
     }
   }
 
-  // Enhanced Email methods using Gmail
-  async sendEmail(to: string, subject: string, html: string, text?: string): Promise<boolean> {
-    if (!this.mailer) {
-      throw new Error('Email service not initialized');
-    }
-
-    const mailOptions: nodemailer.SendMailOptions = {
-      from: this.gmail.user,
-      to,
-      subject,
-      html,
-      text: text || html.replace(/<[^>]*>/g, '') // Strip HTML for text version
-    };
-
-    await this.mailer.sendMail(mailOptions);
-    return true;
-  }
-
-  async sendOTP(email: string, reason: string = "verify"): Promise<string> {
-    const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    this.otpMemory[email] = { otp, created: Date.now(), reason };
-
-    const template = this.templates.otp || `Your OTP is: ${otp}`;
-    const html = template.replace("{{otp}}", `<strong>${otp}</strong>`)
-                        .replace("{{reason}}", reason);
-
-    await this.sendEmail(email, `OTP for ${reason}`, html);
-
-    return otp;
-  }
-
-  verifyOTP(email: string, otp: string): boolean {
-    const rec = this.otpMemory[email];
-    if (!rec || rec.otp !== otp) throw new Error("Invalid OTP");
-    if (Date.now() - rec.created > 10 * 60 * 1000) throw new Error("OTP expired");
-    delete this.otpMemory[email];
-    return true;
-  }
-
   // Authentication methods
   async register(email: string, password: string, profile: Partial<User> = {}): Promise<User> {
     if (!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) throw new Error("Invalid email format");
@@ -836,10 +757,6 @@ class EnhancedUniversalSDK {
     const hashed = this.hashPassword(password);
     const user = await this.insert<User>("users", { email, password: hashed, ...profile });
     
-    if (this.authConfig.otpTriggers?.includes("register")) {
-      await this.sendOTP(email, "registration");
-    }
-
     return user;
   }
 
@@ -847,18 +764,7 @@ class EnhancedUniversalSDK {
     const user = (await this.get<User>("users")).find(u => u.email === email);
     if (!user || !this.verifyPassword(password, user.password!)) throw new Error("Invalid credentials");
 
-    if (this.authConfig.otpTriggers?.includes("login")) {
-      await this.sendOTP(email, "login");
-      return { otpRequired: true };
-    }
-
     return this.createSession(user);
-  }
-
-  async verifyLoginOTP(email: string, otp: string): Promise<string> {
-    this.verifyOTP(email, otp);
-    const user = (await this.get<User>("users")).find(u => u.email === email);
-    return this.createSession(user!);
   }
 
   private hashPassword(password: string): string {
@@ -987,6 +893,5 @@ export type {
   QueryBuilder,
   CloudinaryUploadResult,
   MediaAttachment,
-  SchemaDefinition,
-  GmailConfig
+  SchemaDefinition
 };

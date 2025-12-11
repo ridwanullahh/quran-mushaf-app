@@ -275,18 +275,23 @@ const translations: Record<Language, Record<string, string>> = {
 
 export function I18nProvider({ children }: { children: React.ReactNode }) {
   const [language, setLanguage] = useState<Language>(() => {
-    // Get language from localStorage or default
-    const savedLanguage = localStorage.getItem('quran-language') as Language
-    return savedLanguage || (appConfig.i18n.defaultLanguage as Language)
+    // Get language from localStorage or default (only in browser)
+    if (typeof window !== 'undefined') {
+      const savedLanguage = localStorage.getItem('quran-language') as Language
+      return savedLanguage || (appConfig.i18n.defaultLanguage as Language)
+    }
+    return appConfig.i18n.defaultLanguage as Language
   })
 
   const isRTL = language === 'ar'
 
   // Update document language and direction
   useEffect(() => {
-    document.documentElement.lang = language
-    document.documentElement.dir = isRTL ? 'rtl' : 'ltr'
-    localStorage.setItem('quran-language', language)
+    if (typeof window !== 'undefined') {
+      document.documentElement.lang = language
+      document.documentElement.dir = isRTL ? 'rtl' : 'ltr'
+      localStorage.setItem('quran-language', language)
+    }
   }, [language, isRTL])
 
   // Listen for language changes in other tabs
@@ -358,4 +363,13 @@ export function useI18n() {
     throw new Error('useI18n must be used within an I18nProvider')
   }
   return context
+}
+
+// Alias for useTranslation (used in some components)
+export function useTranslation() {
+  const context = useContext(I18nContext)
+  if (context === undefined) {
+    throw new Error('useTranslation must be used within an I18nProvider')
+  }
+  return { t: context.t }
 }
