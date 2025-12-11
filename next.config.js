@@ -5,6 +5,18 @@ const nextConfig = {
       ...config.resolve.fallback,
       fs: false,
     };
+    
+    // Add path alias resolution for @ imports
+    config.resolve.alias = {
+      ...config.resolve.alias,
+      '@': require('path').join(__dirname, 'src'),
+      '@/components': require('path').join(__dirname, 'src', 'components'),
+      '@/hooks': require('path').join(__dirname, 'src', 'hooks'),
+      '@/lib': require('path').join(__dirname, 'src', 'lib'),
+      '@/types': require('path').join(__dirname, 'src', 'types'),
+      '@/styles': require('path').join(__dirname, 'src', 'styles'),
+    };
+    
     return config;
   },
   typescript: {
