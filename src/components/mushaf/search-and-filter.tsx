@@ -6,22 +6,30 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 
 interface SearchAndFilterProps {
   onSearch: (query: string) => void;
-  onFilterChange: (filter: string) => void;
+  onSortChange?: (sort: 'number' | 'page') => void;
+  currentSort?: 'number' | 'page';
+  totalResults?: number;
+  placeholder?: string;
   className?: string;
 }
 
-export function SearchAndFilter({ onSearch, onFilterChange, className }: SearchAndFilterProps) {
+export function SearchAndFilter({ 
+  onSearch, 
+  onSortChange, 
+  currentSort = 'number',
+  totalResults = 0,
+  placeholder = "Search in Quran...",
+  className 
+}: SearchAndFilterProps) {
   const [searchQuery, setSearchQuery] = useState('');
-  const [selectedFilter, setSelectedFilter] = useState('all');
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
     onSearch(searchQuery);
   };
 
-  const handleFilterChange = (value: string) => {
-    setSelectedFilter(value);
-    onFilterChange(value);
+  const handleSortChange = (value: 'number' | 'page') => {
+    onSortChange?.(value);
   };
 
   return (
@@ -31,7 +39,7 @@ export function SearchAndFilter({ onSearch, onFilterChange, className }: SearchA
           <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
           <Input
             type="text"
-            placeholder="Search in Quran..."
+            placeholder={placeholder}
             value={searchQuery}
             onChange={(e) => setSearchQuery(e.target.value)}
             className="pl-10"
@@ -42,20 +50,26 @@ export function SearchAndFilter({ onSearch, onFilterChange, className }: SearchA
         </Button>
       </form>
       
-      <div className="flex items-center space-x-2">
-        <Filter className="h-4 w-4 text-gray-500" />
-        <Select value={selectedFilter} onValueChange={handleFilterChange}>
-          <SelectTrigger className="w-40">
-            <SelectValue placeholder="Filter by" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Ayahs</SelectItem>
-            <SelectItem value="short">Short Ayahs</SelectItem>
-            <SelectItem value="long">Long Ayahs</SelectItem>
-            <SelectItem value="with-tajweed">With Tajweed</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+      {onSortChange && (
+        <div className="flex items-center space-x-2">
+          <Filter className="h-4 w-4 text-gray-500" />
+          <Select value={currentSort} onValueChange={handleSortChange}>
+            <SelectTrigger className="w-40">
+              <SelectValue placeholder="Sort by" />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="number">By Verse Number</SelectItem>
+              <SelectItem value="page">By Page Number</SelectItem>
+            </SelectContent>
+          </Select>
+        </div>
+      )}
+      
+      {totalResults > 0 && (
+        <div className="text-sm text-gray-600">
+          {totalResults} results
+        </div>
+      )}
     </div>
   );
 }

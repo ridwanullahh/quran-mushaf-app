@@ -7,6 +7,7 @@ import { Ayah } from './ayah'
 import { SurahHeader } from './surah-header'
 import { ListPagination } from './list-pagination'
 import { SearchAndFilter } from './search-and-filter'
+import { cn } from '@/lib/utils'
 
 interface ListViewProps {
   surahId?: string
